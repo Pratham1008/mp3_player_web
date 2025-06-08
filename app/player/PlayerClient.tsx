@@ -36,12 +36,34 @@ export default function PlayerClient() {
         }
 
         fetchTracks()
+
+        return () => {
+            setTrackList([])
+            setCurrentTrack(null)
+        }
     }, [trackId, email])
 
+    const coverUrl = currentTrack?.coverImageUrl
+        ? `${process.env.NEXT_PUBLIC_API_BASE}/api/tracks/${currentTrack.id}/cover`
+        : null
+
+    // Custom Animated Loader
     if (loading) {
         return (
-            <div className="w-full h-screen flex items-center justify-center text-white bg-black">
-                Loading track...
+            <div className="w-full h-screen flex items-center justify-center bg-black">
+                <div className="flex space-x-2">
+                    {[...Array(4)].map((_, i) => (
+                        <div
+                            key={i}
+                            className={`w-2 h-8 bg-white rounded animate-bounce`}
+                            style={{
+                                animationDelay: `${i * 0.2}s`,
+                                animationDuration: '1.2s',
+                                animationIterationCount: 'infinite',
+                            }}
+                        />
+                    ))}
+                </div>
             </div>
         )
     }
@@ -54,23 +76,36 @@ export default function PlayerClient() {
         )
     }
 
-    const coverUrl = currentTrack.coverImageUrl
-        ? `${process.env.NEXT_PUBLIC_API_BASE}/api/tracks/${currentTrack.id}/cover`
-        : null
-
     return (
-        <div className="relative w-full h-screen overflow-hidden">
+        <div className="relative w-full h-screen overflow-hidden bg-black">
+            {/* Blurred background cover */}
             {coverUrl && (
                 <Image
                     src={coverUrl}
                     alt="Background Cover"
                     fill
-                    className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-40"
+                    className="absolute inset-0 object-cover blur-2xl scale-110 opacity-40 z-0"
                     priority
                 />
             )}
 
-            <div className="relative z-20 w-full h-full text-white flex items-center justify-center">
+            {/* Centered spinning CD on mobile */}
+            {coverUrl && (
+                <div className="sm:hidden absolute inset-0 z-10 flex items-center justify-center">
+                    <div className="w-60 h-60 rounded-full overflow-hidden border-4 border-white shadow-xl animate-spin-slow">
+                        <Image
+                            src={coverUrl}
+                            alt="CD Cover"
+                            width={240}
+                            height={240}
+                            className="object-cover"
+                        />
+                    </div>
+                </div>
+            )}
+
+            {/* Player */}
+            <div className="relative z-20 w-full h-full text-white flex items-end">
                 <AudioPlayer
                     track={currentTrack}
                     userEmail={email!}
