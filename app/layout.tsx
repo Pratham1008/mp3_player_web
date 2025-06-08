@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
+import {Toaster} from "sonner";
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -13,7 +14,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-    title: 'My Music Vault',
+    title: 'TuneTadka',
     description: 'Your personal streaming vault for audio tracks',
 }
 
@@ -27,7 +28,10 @@ export default function RootLayout({
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white min-h-screen overflow-x-hidden`}
         >
-        <main className="min-h-[calc(100vh-56px)]">{children}</main>
+        <main className="min-h-[calc(100vh-56px)]">
+            {children}
+        </main>
+        <Toaster richColors position="top-right" />
         </body>
         </html>
     )

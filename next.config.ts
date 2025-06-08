@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
                 hostname: "mp3-backend-ut8t.onrender.com",
                 pathname: "/api/tracks/**",
             },
+            {
+                protocol: "https",
+                hostname: "img.icons8.com",
+                pathname: "/clouds/**"
+            }
         ],
     },
 };

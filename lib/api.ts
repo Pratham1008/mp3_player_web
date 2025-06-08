@@ -27,14 +27,6 @@ export async function uploadTrack(
     return response.data;
 }
 
-export function getCoverImageUrl(filename: string): string {
-    return `${API_BASE}/cover/${filename}`
-}
-
-export function getAudioStreamUrl(filename: string): string {
-    return `${API_BASE}/audio/${filename}`
-}
-
 export async function addToFavorites(id: string, email: string): Promise<string> {
     const res = await axios.post(`${API_BASE}/${id}/favorite`, null, {
         params: { email },
@@ -59,21 +51,21 @@ export async function getTracksByUser(email: string): Promise<Track[]> {
     return res.data
 }
 
-export async function deleteTrack(id: string): Promise<string> {
-    const res = await axios.delete(`${API_BASE}/${id}`)
+export async function deleteTrack(trackId: string): Promise<string> {
+    const res = await axios.delete(`${API_BASE}/${trackId}`)
     return res.data
 }
 
-export async function getUserHistory(userId: string): Promise<History[]> {
+export async function getUserHistory(email: string): Promise<History[]> {
     const res = await axios.get(`${API_BASE}/history`, {
-        params: { userId },
+        params: { "userEmail": email },
     })
     return res.data
 }
 
-export async function getUserFavorites(userId: string): Promise<Favorite[]> {
+export async function getUserFavorites(email: string): Promise<Favorite[]> {
     const res = await axios.get(`${API_BASE}/favorites`, {
-        params: { userId },
+        params: { "userEmail": email },
     })
     return res.data
 }

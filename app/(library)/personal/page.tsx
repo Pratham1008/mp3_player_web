@@ -1,52 +1,63 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getAllTracks, addToFavorites } from '@/lib/api'
-import { Track } from '@/lib/types'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { motion } from 'framer-motion'
-import { MoreVertical } from 'lucide-react'
+import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import {toast} from "sonner";
+import { Skeleton } from '@/components/ui/skeleton'
+import { motion } from 'framer-motion'
+import { Button } from '@/components/ui/button'
+import { Track } from '@/lib/types'
+import { toast } from 'sonner'
+import { Trash } from 'lucide-react'
+import { deleteTrack as deleteTrackApi } from '@/lib/api'
 
-export default function LibraryPage() {
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE + '/api/tracks'
+
+export default function PersonPage() {
     const [tracks, setTracks] = useState<Track[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
-    const router = useRouter()
 
+    const router = useRouter()
     const userEmail = typeof window !== 'undefined' ? localStorage.getItem('userEmail') || '' : ''
 
-    const fetchTracks = async () => {
+    const fetchUserTracks = async () => {
         try {
-            const data = await getAllTracks()
-            setTracks(data)
+            const res = await axios.get(`${API_BASE}/by-user`, {
+                params: { email: userEmail },
+            })
+            setTracks(res.data)
         } catch (err) {
             console.error(err)
-            setError('Failed to load tracks')
+            setError('Failed to load your uploaded tracks.')
         } finally {
             setLoading(false)
         }
     }
 
-    const handleAddFavorite = async (trackId: string) => {
+    const handleDelete = async (trackId: string) => {
+        const confirmDelete = window.confirm('Are you sure you want to delete this track?')
+        if (!confirmDelete) return
+
         try {
-            await addToFavorites(trackId, userEmail)
-            toast.success('Favorite successfully added')
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                console.error('Failed to add to favorites:', error.message)
-                toast.error(`Failed to add to favorites: ${error.message}`)
-            }
+            await deleteTrackApi(trackId)
+            toast.success('Track deleted successfully')
+            setTracks(prev => prev.filter(track => track.id !== trackId))
+        } catch (err) {
+            console.error(err)
+            toast.error('Failed to delete track')
         }
     }
 
     useEffect(() => {
-        fetchTracks()
-    }, [])
+        if (userEmail) {
+            fetchUserTracks()
+        } else {
+            setError('No user email found. Please log in.')
+            setLoading(false)
+        }
+    }, [userEmail])
 
     return (
         <main className="p-4 sm:p-6 mx-auto pb-48 bg-neutral-900 text-white min-h-screen space-y-6">
@@ -75,7 +86,7 @@ export default function LibraryPage() {
                             const encodedEmail = encodeURIComponent(userEmail)
                             router.push(`/player?trackId=${track.id}&email=${encodedEmail}`)
                         }}
-                        className="flex items-center gap-3 sm:gap-4 py-2 sm:py-3 px-3 sm:px-4 bg-neutral-800 rounded-lg transition hover:bg-neutral-700 cursor-pointer"
+                        className="group flex items-center gap-3 sm:gap-4 py-2 sm:py-3 px-3 sm:px-4 bg-neutral-800 rounded-lg transition hover:bg-neutral-700 cursor-pointer"
                         whileHover={{ scale: 1.01 }}
                     >
                         <div className="w-12 h-12 sm:w-14 sm:h-14 relative rounded-md overflow-hidden bg-zinc-900 flex-shrink-0">
@@ -97,30 +108,18 @@ export default function LibraryPage() {
                             <p className="text-xs sm:text-sm text-zinc-400 truncate">{track.artist}</p>
                         </div>
 
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="bg-neutral-700 hover:bg-neutral-600 rounded-full p-2"
-                                    aria-label="More options"
-                                >
-                                    <MoreVertical className="w-4 h-4 text-zinc-300" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent side="bottom" align="end" className="bg-neutral-800 border-neutral-700 text-white">
-                                <DropdownMenuItem
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        handleAddFavorite(track.id)
-                                    }}
-                                    className="hover:bg-neutral-700 cursor-pointer"
-                                >
-                                    Add to Favorite
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                handleDelete(track.id)
+                            }}
+                            className="rounded-full hover:bg-red-600 p-2"
+                            aria-label="Delete track"
+                        >
+                            <Trash className="w-4 h-4 text-zinc-300 group-hover:text-red-500" />
+                        </Button>
                     </motion.div>
                 ))}
             </motion.div>
