@@ -4,9 +4,8 @@ const nextConfig: NextConfig = {
     images: {
         remotePatterns: [
             {
-                protocol: "http",
-                hostname: "localhost",
-                port: "8080",
+                protocol: "https",
+                hostname: "mp3-backend-ut8t.onrender.com",
                 pathname: "/api/tracks/**",
             },
         ],
