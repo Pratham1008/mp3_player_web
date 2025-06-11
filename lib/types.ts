@@ -22,7 +22,6 @@ export interface Users {
 
 export interface Favorite {
     id: string;
-    title: string;
     userId: string;
     trackId: string;
     favoritedAt: string;
@@ -30,7 +29,6 @@ export interface Favorite {
 
 export interface History {
     id: string;
-    title: string;
     userId: string;
     trackId: string;
     listenedAt: string;

@@ -14,6 +14,7 @@ const ALL_NAV_ITEMS = [
     { href: '/history', label: 'History' },
     { href: '/favorite', label: 'Favourites' },
     { href: '/personal', label: 'Personal' },
+    { href: '/', label: 'Logout' },
 ]
 
 const ALLOWED_UPLOADERS = new Set([
