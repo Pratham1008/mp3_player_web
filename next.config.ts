@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
                 protocol: "https",
                 hostname: "img.icons8.com",
                 pathname: "/clouds/**"
+            },
+            {
+                protocol: "http",
+                hostname: "localhost",
+                port: "8080",
+                pathname: "/api/tracks/**",
             }
         ],
     },

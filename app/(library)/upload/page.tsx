@@ -12,15 +12,26 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { uploadTrack } from "@/lib/api";
 
+const allowedMimeTypes = [
+    "audio/mpeg",      // .mp3
+    "audio/x-m4a",     // .m4a (iOS-style)
+    "audio/mp4",       // .m4a (standard)
+    "audio/flac",      // .flac
+    "audio/wav",       // .wav
+    "audio/x-wav",     // alternate .wav
+    "audio/ogg",       // .ogg
+];
 // Zod schema
 const formSchema = z.object({
-    title: z.string().min(2, "Title must be at least 2 characters").max(100),
-    email: z.string().email("Invalid email"),
-    file: z
-        .any()
-        .refine((file) => file?.[0] instanceof File, "MP3 file is required.")
-        .refine((file) => file?.[0]?.type === "audio/mpeg", {
-            message: "Only MP3 files are allowed",
+    title: z.string()
+        .min(2, "Title must be at least 2 characters")
+        .max(100),
+    email: z.string()
+        .email("Invalid email"),
+    file: z.any()
+        .refine((file) => file?.[0] instanceof File, "Audio file is required.")
+        .refine((file) => allowedMimeTypes.includes(file?.[0]?.type), {
+            message: "Only MP3, M4A, FLAC, WAV, or OGG files are allowed",
         })
         .refine((file) => file?.[0]?.size <= 50 * 1024 * 1024, {
             message: "File size must be less than 50MB",
@@ -119,7 +130,7 @@ export default function UploadPage() {
                         <Input
                             id="file"
                             type="file"
-                            accept="audio/mpeg"
+                            accept=".mp3, .m4a, .flac, .wav, .ogg, audio/mpeg, audio/mp4, audio/x-m4a, audio/flac, audio/wav, audio/x-wav, audio/ogg"
                             className="bg-zinc-700 border border-zinc-600 text-white file:text-white file:bg-zinc-600 file:hover:bg-zinc-700 file:border-0 file:rounded-md file:py-2 file:px-4 file:mr-4 transition-all duration-200 cursor-pointer rounded-md py-3 px-4 text-base"
                             {...register("file")}
                         />
